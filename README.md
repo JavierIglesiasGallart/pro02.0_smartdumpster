@@ -18,6 +18,8 @@ Install the project in your development environment:
 - Install ROS-Humble
 ...
 
+## Deployment
+
 - Compile Workspace
 
 ```bash
@@ -26,9 +28,7 @@ Install the project in your development environment:
   $ colcon build --symlink-install --parallel-workers 2
 ```
 
-## Deployment
-
-Init ROS:
+- Init ROS:
 
 ```bash
   $ ros2 launch ...
