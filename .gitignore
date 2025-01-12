@@ -6,3 +6,6 @@ log/
 
 # Ignorar la carpeta install
 install/
+
+# Ignorar la carpeta .vscode
+.vscode/
