@@ -1,0 +1,11 @@
+# Ignorar la carpeta build
+build/
+
+# Ignorar la carpeta log
+log/
+
+# Ignorar la carpeta install
+install/
+
+# Ignorar la carpeta .vscode
+.vscode/
