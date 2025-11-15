@@ -15,7 +15,7 @@ The aim of this collaboration is to tackle a social and environmental challenge:
 
 Install the project in your development environment:
 
-- Install ROS-Humble
+- Install ROS2-Jazzy
 ...
 
 ## Deployment
@@ -28,7 +28,7 @@ Install the project in your development environment:
   $ colcon build --symlink-install --parallel-workers 2
 ```
 
-- Init ROS:
+- Init ROS2:
 
 ```bash
   $ ros2 launch ...
