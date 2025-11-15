@@ -3,7 +3,13 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="smartdumpster">
 
+    <xacro:arg name="is_ignition" default="True" />
+
+    <!-- Include Gezabo parameters -->
     <xacro:include filename="$(find smartdumpster_description)/urdf/sdumpster_gazebo.xacro" />
+
+    <!-- Include ROS2 Control -->
+    <xacro:include filename="$(find smartdumpster_description)/urdf/sdumpster_ros2_control.xacro" />
 
     <link name="base_footprint" />
 
