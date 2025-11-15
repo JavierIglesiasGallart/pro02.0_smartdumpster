@@ -1,10 +1,21 @@
 <?xml version="1.0"?>
 
+
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="smartdumpster">
+
+    <xacro:include filename="$(find smartdumpster_description)/urdf/sdumpster_gazebo.xacro" />
 
     <link name="base_footprint" />
 
     <link name="base_link">
+
+        <inertial>
+            <mass value="40.0" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="3.27" ixy="0.0" ixz="0.0"
+                     iyy="3.77" iyz="0.0" 
+                     izz="3.77" />
+        </inertial>
         
         <visual>
             <origin rpy="1.57 0 1.57" xyz="0 0 0" />
@@ -13,6 +24,13 @@
             </geometry>
         </visual>
 
+        <collision>
+            <origin rpy="1.57 0 1.57" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://smartdumpster_description/meshes/base_link.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+        </collision>
+
     </link>
 
     <joint name="base_joint" type="fixed">
@@ -20,11 +38,19 @@
         <parent link="base_footprint" />
         <child link="base_link" />
 
-        <origin rpy="0 0 0" xyz="0 0 0.0995" />
+        <origin rpy="0 0 0" xyz="0 0 0.1175" />
 
     </joint>
 
     <link name="wheel_right_link">
+
+        <inertial>
+            <mass value="0.836" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.00397" ixy="0.0" ixz="0.0"
+                     iyy="0.00210" iyz="0.0" 
+                     izz="0.00210" />
+        </inertial>
 
         <visual>
             <origin rpy="0 0 1.57" xyz="0 0 0" />
@@ -32,6 +58,13 @@
                 <mesh filename="package://smartdumpster_description/meshes/wheel_right_link.stl" scale="0.001 0.001 0.001" />
             </geometry>
         </visual>
+
+        <collision>
+            <origin rpy="0 0 1.57" xyz="0 -0.015 0" />
+            <geometry>
+                <sphere radius="0.0975" />
+            </geometry>
+        </collision>
 
     </link>
 
@@ -47,12 +80,27 @@
 
     <link name="wheel_left_link">
 
+        <inertial>
+            <mass value="0.836" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.00397" ixy="0.0" ixz="0.0"
+                     iyy="0.00210" iyz="0.0" 
+                     izz="0.00210" />
+        </inertial>
+
         <visual>
             <origin rpy="0 0 1.57" xyz="0 0 0" />
             <geometry>
                 <mesh filename="package://smartdumpster_description/meshes/wheel_left_link.stl" scale="0.001 0.001 0.001" />
             </geometry>
         </visual>
+
+        <collision>
+            <origin rpy="0 0 1.57" xyz="0 0.015 0" />
+            <geometry>
+                <sphere radius="0.0975" />
+            </geometry>
+        </collision>
 
     </link>
 
@@ -68,12 +116,27 @@
 
     <link name="caster_front_link">
 
+        <inertial>
+            <mass value="0.329" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.000306" ixy="0.0" ixz="0.0"
+                     iyy="0.000306" iyz="0.0" 
+                     izz="0.000306" />
+        </inertial>
+
         <visual>
             <origin rpy="1.57 0 0" xyz="0 0 0" />
             <geometry>
                 <mesh filename="package://smartdumpster_description/meshes/caster_wheel_link.stl" scale="0.001 0.001 0.001" />
             </geometry>
         </visual>
+
+        <collision>
+            <origin rpy="1.57 0 0" xyz="0 0 0" />
+            <geometry>
+                <sphere radius="0.0965" />
+            </geometry>
+        </collision>
 
     </link>
 
@@ -88,12 +151,27 @@
 
     <link name="caster_rear_link">
 
+        <inertial>
+            <mass value="0.329" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.000306" ixy="0.0" ixz="0.0"
+                     iyy="0.000306" iyz="0.0" 
+                     izz="0.000306" />
+        </inertial>
+
         <visual>
             <origin rpy="1.57 0 0" xyz="0 0 0" />
             <geometry>
                 <mesh filename="package://smartdumpster_description/meshes/caster_wheel_link.stl" scale="0.001 0.001 0.001" />
             </geometry>
         </visual>
+
+        <collision>
+            <origin rpy="1.57 0 0" xyz="0 0 0" />
+            <geometry>
+                <sphere radius="0.0965" />
+            </geometry>
+        </collision>
 
     </link>
 
