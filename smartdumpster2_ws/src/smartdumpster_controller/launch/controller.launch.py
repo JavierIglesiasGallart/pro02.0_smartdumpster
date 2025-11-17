@@ -1,5 +1,5 @@
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, GroupAction
 from launch.substitutions import LaunchConfiguration
 from launch.conditions import IfCondition, UnlessCondition
 
@@ -23,9 +23,15 @@ def generate_launch_description():
         default_value="0.796"
     )
 
+    use_simple_controller_arg = DeclareLaunchArgument(
+        "use_simple_controller",
+        default_value="True"
+    )
+
     use_python = LaunchConfiguration("use_python")
     wheel_radius = LaunchConfiguration("wheel_radius")
     wheel_separation = LaunchConfiguration("wheel_separation")
+    use_simple_controller = LaunchConfiguration("use_simple_controller")
 
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
@@ -37,40 +43,57 @@ def generate_launch_description():
         ]
     )
 
-    simple_controller = Node(
+    wheel_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "simple_velocity_controller",
+            "smartdumpster_controller",
             "--controller-manager",
             "/controller_manager"
+        ],
+
+        condition=UnlessCondition(use_simple_controller)
+    )
+
+    simple_controller = GroupAction(
+        condition=IfCondition(use_simple_controller),
+        actions=[
+            Node(
+                package="controller_manager",
+                executable="spawner",
+                arguments=[
+                    "simple_velocity_controller",
+                    "--controller-manager",
+                    "/controller_manager"
+                ]
+            ),
+
+            Node(
+                package="smartdumpster_controller",
+                executable="simple_controller.py",
+                parameters=[{"wheel_radius": wheel_radius,
+                            "wheel_separation": wheel_separation}],
+
+                condition=IfCondition(use_python)
+            ),
+
+            Node(
+                package="smartdumpster_controller",
+                executable="simple_controller",
+                parameters=[{"wheel_radius": wheel_radius,
+                            "wheel_separation": wheel_separation}],
+
+                condition=UnlessCondition(use_python)
+            )
         ]
-    )
-
-    simple_controller_py = Node(
-        package="smartdumpster_controller",
-        executable="simple_controller.py",
-        parameters=[{"wheel_radius": wheel_radius,
-                     "wheel_separation": wheel_separation}],
-
-        condition=IfCondition(use_python)
-    )
-
-    simple_controller_cpp = Node(
-        package="smartdumpster_controller",
-        executable="simple_controller",
-        parameters=[{"wheel_radius": wheel_radius,
-                     "wheel_separation": wheel_separation}],
-
-        condition=UnlessCondition(use_python)
     )
 
     return LaunchDescription([
         use_python_arg,
         wheel_radius_arg,
         wheel_separation_arg,
+        use_simple_controller_arg,
         joint_state_broadcaster_spawner,
+        wheel_controller_spawner,
         simple_controller,
-        simple_controller_py,
-        simple_controller_cpp
     ])
