@@ -34,7 +34,8 @@ def generate_launch_description():
     robot_state_publisher = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        parameters=[{"robot_description": robot_description}]
+        parameters=[{"robot_description": robot_description,
+                     "use_sim_time": True}]
     )
 
     gazebo_resource_path = SetEnvironmentVariable(
@@ -62,10 +63,19 @@ def generate_launch_description():
                     "-name", "smartdumpster"]
     )
 
+    gz_ros2_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        arguments=[
+            "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
+        ]
+    )
+
     return LaunchDescription([
         model_arg,
         robot_state_publisher,
         gazebo_resource_path,
         gazebo,
-        gz_spawn_entity
+        gz_spawn_entity,
+        gz_ros2_bridge
     ])
