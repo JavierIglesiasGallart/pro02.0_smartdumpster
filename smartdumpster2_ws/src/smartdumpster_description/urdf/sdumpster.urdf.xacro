@@ -5,6 +5,8 @@
 
     <xacro:arg name="is_ignition" default="True" />
 
+    <xacro:arg name="is_sim" default="True" />
+
     <!-- Include Gezabo parameters -->
     <xacro:include filename="$(find smartdumpster_description)/urdf/sdumpster_gazebo.xacro" />
 

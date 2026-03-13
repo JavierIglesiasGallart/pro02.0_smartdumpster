@@ -1,0 +1,11 @@
+<library path="smartdumpster_firmware">
+
+    <class name="smartdumpster_firmware/SmartdumpsterInterface"
+           type="smartdumpster_firmware::SmartdumpsterInterface"
+           base_class_type="hardware_interface::SystemInterface">
+        <description>
+            Smartdumpster hardware interface
+        </description>
+    </class>
+
+</library>

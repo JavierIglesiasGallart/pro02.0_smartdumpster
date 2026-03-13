@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 
-namespace smartdumpster_interface
+namespace smartdumpster_firmware
 {
     using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
@@ -29,7 +29,7 @@ namespace smartdumpster_interface
             
             virtual CallbackReturn on_deactivate(const rclcpp_lifecycle::State &previous_state) override;
 
-            virtual CallbackReturn on_init(const hardware_interface::HardwareInfo & hardware_info) override;
+            virtual CallbackReturn on_init(const hardware_interface::HardwareComponentInterfaceParams & hardware_info) override;
 
             virtual std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
 
@@ -65,6 +65,9 @@ namespace smartdumpster_interface
             static void CCONV onEngineR_Detach(PhidgetHandle ch, void * ctx);
             static void CCONV onEncoderL_Detach(PhidgetHandle ch, void * ctx);
             static void CCONV onEncoderR_Detach(PhidgetHandle ch, void * ctx);
+
+            static void CCONV positionChange_LEFT(PhidgetEncoderHandle ch, void * ctx, int positionChange, double timeChange, int indexTriggered);
+            static void CCONV positionChange_RIGHT(PhidgetEncoderHandle ch, void * ctx, int positionChange, double timeChange, int indexTriggered);
     };
 }
 

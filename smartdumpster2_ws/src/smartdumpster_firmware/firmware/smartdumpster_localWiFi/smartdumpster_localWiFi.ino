@@ -2,8 +2,8 @@
 #include "WiFiS3.h"
 
 
-char ssid[] = "SmartdumpsterWiFi";
-char pwd[] = "smartdumpsterROS2026";
+char ssid[] = "ROBOT_WIFI";
+char pwd[] = "ros_robot";
 
 IPAddress local_IP(192, 168, 4, 1);
 IPAddress gateway(192, 168, 4, 1);
