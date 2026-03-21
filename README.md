@@ -9,7 +9,7 @@ The aim of this collaboration is to tackle a social and environmental challenge:
 
 - Javier Iglesias Gallart || iglesiasgallartjavier@gmail.com
   
-![Logo](https://zaragoza.salesianos.edu/colegio/wp-content/uploads/sites/2/2023/05/banner-web-SMARTDUMPSTER-1.jpg)
+![Logo](Img/cartel_difusion.png)
 
 ## Installation
 
