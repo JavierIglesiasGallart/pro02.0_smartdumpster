@@ -51,6 +51,12 @@ namespace smartdumpster_firmware
 
             rclcpp::Time last_run_;
 
+            double kp_, ki_, kd_;
+            bool pid_enable_;
+            double l_error_integral_, r_error_integral_;
+            double l_prev_error_, r_prev_error_;
+            double l_prev_output_, r_prev_output_;
+
             std::vector<PhidgetDCMotorHandle> engine_;
 	        std::vector<PhidgetEncoderHandle> encoder_;
 
@@ -65,9 +71,6 @@ namespace smartdumpster_firmware
             static void CCONV onEngineR_Detach(PhidgetHandle ch, void * ctx);
             static void CCONV onEncoderL_Detach(PhidgetHandle ch, void * ctx);
             static void CCONV onEncoderR_Detach(PhidgetHandle ch, void * ctx);
-
-            static void CCONV positionChange_LEFT(PhidgetEncoderHandle ch, void * ctx, int positionChange, double timeChange, int indexTriggered);
-            static void CCONV positionChange_RIGHT(PhidgetEncoderHandle ch, void * ctx, int positionChange, double timeChange, int indexTriggered);
     };
 }
 

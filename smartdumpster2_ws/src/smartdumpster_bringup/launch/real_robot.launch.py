@@ -22,7 +22,8 @@ def generate_launch_description():
         ),
         launch_arguments={
             "use_simple_controller": "False",
-            "use_python": "False"
+            "use_python": "False",
+            "use_sim_time": "False"
         }.items(),
     )
     
@@ -38,7 +39,7 @@ def generate_launch_description():
     )
 
     imu_driver_node = Node(
-        package="bumperbot_firmware",
+        package="smartdumpster_firmware",
         executable="mpu6050_driver.py"
     )
     

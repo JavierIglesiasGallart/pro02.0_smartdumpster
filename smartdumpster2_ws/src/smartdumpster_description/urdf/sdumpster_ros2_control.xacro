@@ -25,6 +25,10 @@
             
             <hardware>
                 <plugin>smartdumpster_firmware/SmartdumpsterInterface</plugin>
+                <param name="kp">0.1</param>
+                <param name="ki">0.001</param>
+                <param name="kd">0.001</param>
+                <param name="pid_enable">false</param>
             </hardware>
 
         </xacro:unless>

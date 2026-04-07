@@ -14,12 +14,18 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 
+find_library(PHIDGETS_LIB NAMES phidget22 REQUIRED)
+
 ament_python_install_package(${PROJECT_NAME})
 
 include_directories(include)
 
 add_library(${PROJECT_NAME} SHARED
   src/smartdumpster_interface.cpp
+)
+
+target_link_libraries(${PROJECT_NAME}
+  ${PHIDGETS_LIB}
 )
 
 ament_target_dependencies(${PROJECT_NAME}

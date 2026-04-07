@@ -5,7 +5,16 @@ namespace smartdumpster_firmware
 {
     SmartdumpsterInterface::SmartdumpsterInterface()
     {
-
+        kp_ = 0.0;
+        ki_ = 0.0;
+        kd_ = 0.0;
+        l_error_integral_ = 0.0;
+        r_error_integral_ = 0.0;
+        l_prev_error_ = 0.0;
+        r_prev_error_ = 0.0;
+        l_prev_output_ = 0.0;
+        r_prev_output_ = 0.0;
+        pid_enable_ = false;
     }
 
     SmartdumpsterInterface::~SmartdumpsterInterface()
@@ -24,9 +33,9 @@ namespace smartdumpster_firmware
 
         this->info_ = hardware_info.hardware_info;
 
-        velocity_commands_.reserve(info_.joints.size());
-        position_states_.reserve(info_.joints.size());
-        velocity_states_.reserve(info_.joints.size());
+        velocity_commands_.assign(info_.joints.size(), 0.0);
+        position_states_.assign(info_.joints.size(), 0.0);
+        velocity_states_.assign(info_.joints.size(), 0.0);
         last_run_ = rclcpp::Clock().now();
 
         engine_.reserve(info_.joints.size());
@@ -46,6 +55,18 @@ namespace smartdumpster_firmware
         Phidget_setOnDetachHandler((PhidgetHandle)engine_[R_ENGINE], SmartdumpsterInterface::onEngineR_Detach, NULL);
         Phidget_setOnDetachHandler((PhidgetHandle)encoder_[L_ENGINE], SmartdumpsterInterface::onEncoderL_Detach, NULL);
         Phidget_setOnDetachHandler((PhidgetHandle)encoder_[R_ENGINE], SmartdumpsterInterface::onEncoderR_Detach, NULL);
+
+        auto it_kp = info_.hardware_parameters.find("kp");
+        if (it_kp != info_.hardware_parameters.end()) kp_ = std::stod(it_kp->second);
+
+        auto it_ki = info_.hardware_parameters.find("ki");
+        if (it_ki != info_.hardware_parameters.end()) ki_ = std::stod(it_ki->second);
+
+        auto it_kd = info_.hardware_parameters.find("kd");
+        if (it_kd != info_.hardware_parameters.end()) kd_ = std::stod(it_kd->second);
+
+        auto it_pid_enable = info_.hardware_parameters.find("pid_enable");
+        if (it_pid_enable != info_.hardware_parameters.end()) pid_enable_ = (it_pid_enable->second == "true");
 
         return CallbackReturn::SUCCESS;
     }
@@ -138,6 +159,9 @@ namespace smartdumpster_firmware
             RCLCPP_FATAL(rclcpp::get_logger("SmartdumpserInterface"), "Something went wrong while attach hardware...");
             return CallbackReturn::FAILURE;
         }
+
+        PhidgetDCMotor_setTargetVelocity(engine_[L_ENGINE], 0.0);
+        PhidgetDCMotor_setTargetVelocity(engine_[R_ENGINE], 0.0);
         
         RCLCPP_INFO(rclcpp::get_logger("SmartdumpserInterface"), "Hardware started, ready to take commands");
         return CallbackReturn::SUCCESS;
@@ -146,6 +170,9 @@ namespace smartdumpster_firmware
     CallbackReturn SmartdumpsterInterface::on_deactivate(const rclcpp_lifecycle::State &previous_state)
     {
         RCLCPP_INFO(rclcpp::get_logger("SmartdumpserInterface"), "Stopping robot hardware...");
+
+        PhidgetDCMotor_setTargetVelocity(engine_[L_ENGINE], 0.0);
+        PhidgetDCMotor_setTargetVelocity(engine_[R_ENGINE], 0.0);
 
         try
         {
@@ -185,17 +212,21 @@ namespace smartdumpster_firmware
     hardware_interface::return_type SmartdumpsterInterface::read(const rclcpp::Time & time, const rclcpp::Duration & period)
     {
         auto dt = (rclcpp::Clock().now() - last_run_).seconds();
-        double l_vel_ = 0.0;
-        double r_vel_ = 0.0;
+        int64_t l_counts = 0;
+        int64_t r_counts = 0;
+        const double CPR = 5400.0; // 300 * 18
 
-        PhidgetDCMotor_getVelocity(engine_[L_ENGINE], &l_vel_);
-        PhidgetDCMotor_getVelocity(engine_[R_ENGINE], &r_vel_);
+        PhidgetEncoder_getPosition(encoder_[L_ENGINE], &l_counts);
+        PhidgetEncoder_getPosition(encoder_[R_ENGINE], &r_counts);
 
-        velocity_states_.at(L_ENGINE) = l_vel_;
-        velocity_states_.at(R_ENGINE) = r_vel_;
+        double l_pos_rad = (static_cast<double>(-l_counts) / CPR) * 2.0 * 3.14;
+        double r_pos_rad = (static_cast<double>(r_counts) / CPR) * 2.0 * 3.14;
 
-        position_states_[R_ENGINE] += velocity_states_.at(R_ENGINE) * dt;
-        position_states_[L_ENGINE] += velocity_states_.at(L_ENGINE) * dt;
+        velocity_states_[L_ENGINE] = (l_pos_rad - position_states_[L_ENGINE]) / dt;
+        velocity_states_[R_ENGINE] = (r_pos_rad - position_states_[R_ENGINE]) / dt;
+
+        position_states_[L_ENGINE] = l_pos_rad;
+        position_states_[R_ENGINE] = r_pos_rad;
 
         last_run_ = rclcpp::Clock().now();
 
@@ -204,14 +235,59 @@ namespace smartdumpster_firmware
 
     hardware_interface::return_type SmartdumpsterInterface::write(const rclcpp::Time & time, const rclcpp::Duration & period)
     {
-        double l_vel_cmd_ = 0.0;
-        double r_vel_cmd_ = 0.0;
+        const double MAX_RAD_S = 18.32;
+        double dt = period.seconds();
 
-        l_vel_cmd_ = velocity_commands_.at(L_ENGINE);
-        r_vel_cmd_ = velocity_commands_.at(R_ENGINE);
+        double l_vel_setpoint = velocity_commands_[L_ENGINE];
+        double r_vel_setpoint = velocity_commands_[R_ENGINE];
 
-        PhidgetDCMotor_setTargetVelocity(engine_[L_ENGINE], l_vel_cmd_);
-        PhidgetDCMotor_setTargetVelocity(engine_[R_ENGINE], r_vel_cmd_);
+        if(pid_enable_)     // ----- LAZO CERRADO -----
+        {
+            double l_vel_feedback = velocity_states_[L_ENGINE];
+            double r_vel_feedback = velocity_states_[R_ENGINE];
+
+            // --- PID MOTOR IZQUIERDO ---
+            double l_error = l_vel_setpoint - l_vel_feedback;
+            
+            if (std::abs(l_prev_output_) < 1.0 || (l_error * l_prev_output_ < 0)) {
+                l_error_integral_ += l_error * dt;
+            }
+            
+            double l_derivative = (l_error - l_prev_error_) / dt;
+            double l_output = (kp_ * l_error) + (ki_ * l_error_integral_) + (kd_ * l_derivative);
+            
+            if (std::abs(l_vel_setpoint) < 0.1) l_error_integral_ = 0.0;
+
+            // --- PID MOTOR DERECHO ---
+            double r_error = r_vel_setpoint - r_vel_feedback;
+            
+            if (std::abs(r_prev_output_) < 1.0 || (r_error * r_prev_output_ < 0)) {
+                r_error_integral_ += r_error * dt;
+            }
+            
+            double r_derivative = (r_error - r_prev_error_) / dt;
+            double r_output = (kp_ * r_error) + (ki_ * r_error_integral_) + (kd_ * r_derivative);
+            
+            if (std::abs(r_vel_setpoint) < 0.1) r_error_integral_ = 0.0;
+
+            l_prev_error_ = l_error;
+            r_prev_error_ = r_error;
+            
+            l_prev_output_ = std::max(-1.0, std::min(1.0, l_output));
+            r_prev_output_ = std::max(-1.0, std::min(1.0, r_output));
+
+            if (std::abs(r_output) < 0.1) r_prev_output_ = 0.0;
+            if (std::abs(l_output) < 0.1) l_prev_output_ = 0.0;
+        }
+        else // ----- LAZO CERRADO -----
+        {
+            l_prev_output_ = std::max(-1.0, std::min(1.0, l_vel_setpoint / MAX_RAD_S));
+            r_prev_output_ = std::max(-1.0, std::min(1.0, r_vel_setpoint / MAX_RAD_S));
+        }
+
+
+        PhidgetDCMotor_setTargetVelocity(engine_[L_ENGINE], l_prev_output_);
+        PhidgetDCMotor_setTargetVelocity(engine_[R_ENGINE], -r_prev_output_);
 
         return hardware_interface::return_type::OK;
     }

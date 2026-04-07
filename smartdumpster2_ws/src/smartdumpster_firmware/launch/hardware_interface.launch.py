@@ -36,13 +36,13 @@ def generate_launch_description():
             os.path.join(
                 get_package_share_directory("smartdumpster_controller"),
                 "config",
-                "smartdumpster_controllers.yaml"
+                "sdumpster_controllers.yaml"
             )
         ]
     )
 
     imu_driver_node = Node(
-        package="smartdumpster_firmaware",
+        package="smartdumpster_firmware",
         executable="mpu6050_driver.py"
     )
 
