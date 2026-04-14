@@ -30,6 +30,7 @@
             <geometry>
                 <mesh filename="package://smartdumpster_description/meshes/base_link.stl" scale="0.001 0.001 0.001" />
             </geometry>
+            <material name="silver"/>
         </visual>
 
         <collision>
@@ -65,6 +66,7 @@
             <geometry>
                 <mesh filename="package://smartdumpster_description/meshes/wheel_right_link.stl" scale="0.001 0.001 0.001" />
             </geometry>
+            <material name="black"/>
         </visual>
 
         <collision>
@@ -101,6 +103,7 @@
             <geometry>
                 <mesh filename="package://smartdumpster_description/meshes/wheel_left_link.stl" scale="0.001 0.001 0.001" />
             </geometry>
+            <material name="black"/>
         </visual>
 
         <collision>
@@ -137,6 +140,7 @@
             <geometry>
                 <mesh filename="package://smartdumpster_description/meshes/caster_wheel_link.stl" scale="0.001 0.001 0.001" />
             </geometry>
+            <material name="black"/>
         </visual>
 
         <collision>
@@ -172,6 +176,7 @@
             <geometry>
                 <mesh filename="package://smartdumpster_description/meshes/caster_wheel_link.stl" scale="0.001 0.001 0.001" />
             </geometry>
+            <material name="black"/>
         </visual>
 
         <collision>
@@ -227,5 +232,57 @@
         <origin xyz="0 0 0.150" rpy="0 0 0" />
 
     </joint>
+
+    <link name="laser_link">
+
+        <inertial>
+            <origin xyz="-0.011945780406062 -0.000381929217680526 -0.0170649378129477" rpy="0 0 0" />
+            <mass value="0.073084435549317" />
+            <inertia ixx="1.96074931730795E-05" ixy="-3.62091076640009E-07" ixz="4.28230084046735E-07" 
+                     iyy="2.40983835136327E-05" iyz="1.50180909250652E-08"
+                     izz="4.14184164228595E-05" />
+        </inertial>
+        
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://smartdumpster_description/meshes/laser_link.STL" />
+            </geometry>
+            <material name="dark_grey"/>
+        </visual>
+
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0" />
+            <geometry>
+                <mesh filename="package://smartdumpster_description/meshes/laser_link.STL" />
+            </geometry>
+        </collision>
+
+    </link>
+
+    <joint name="laser_joint" type="fixed">
+        
+        <parent link="base_link" />
+        <child link="laser_link" />
+
+        <axis xyz="0 0 0" />
+        <origin xyz="0 0 0.1808" rpy="0 0 3.14" />
+
+    </joint>
+
+
+    <!-- VISUAL MATERIAL COLOR -->
+    <material name="blue">
+        <color rgba="0 0 1 1"/>
+    </material>
+    <material name="black">
+        <color rgba="0 0 0 1"/>
+    </material>
+    <material name="silver">
+        <color rgba="0.79 0.82 0.93 1"/>
+    </material>
+    <material name="dark_grey">
+        <color rgba="0.3 0.3 0.3 1"/>
+    </material>
 
 </robot>

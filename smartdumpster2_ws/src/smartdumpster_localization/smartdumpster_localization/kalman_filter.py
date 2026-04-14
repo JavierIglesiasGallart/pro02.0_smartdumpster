@@ -54,8 +54,9 @@ class KalmanFilter(Node):
         self.motion_ = odom.twist.twist.angular.z - self.last_angular_z_
         
         self.statePrediction()
-
         self.measurementUpdate()
+
+        self.last_angular_z_ = odom.twist.twist.angular.z
 
         self.kalman_odom_.twist.twist.angular.z = self.mean_
         self.odom_pub_.publish(self.kalman_odom_)
