@@ -9,6 +9,14 @@
       <real_time_update_rate>1000</real_time_update_rate>
     </physics>
 
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <world_frame_orientation>ENU</world_frame_orientation>
+      <latitude_deg>41.644262795596774</latitude_deg>
+      <longitude_deg>-0.9034251889709917</longitude_deg>
+      <elevation>245</elevation>
+    </spherical_coordinates>
+
         <model name="aws_robomaker_warehouse_ShelfF_01_001">
         <include>
             <uri>model://aws_robomaker_warehouse_ShelfF_01</uri>

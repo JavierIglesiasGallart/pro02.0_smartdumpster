@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     rclcpp::sleep_for(1s);
     
     imu_pub = node->create_publisher<sensor_msgs::msg::Imu>("imu_ekf", 10);
-    auto imu_sub = node->create_subscription<sensor_msgs::msg::Imu>("imu/out", 10, imuCallback);
+    auto imu_sub = node->create_subscription<sensor_msgs::msg::Imu>("zed/imu/out", 10, imuCallback);
 
     rclcpp::spin(node);
     rclcpp::shutdown();

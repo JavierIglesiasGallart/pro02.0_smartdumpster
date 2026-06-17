@@ -55,7 +55,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_python_arg,
-        static_transform_publisher,
+        #static_transform_publisher,
         robot_localization,
         imu_republisher_py,
         imu_republisher

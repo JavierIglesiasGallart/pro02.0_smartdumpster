@@ -22,7 +22,7 @@ def main():
 
     imu_pub = node.create_publisher(Imu, "imu_ekf", 10)
 
-    imu_sub = node.create_subscription(Imu, "imu/out", imuCallback, 10)
+    imu_sub = node.create_subscription(Imu, "zed/imu/out", imuCallback, 10)
 
     rclpy.spin(node)
     rclpy.shutdown()

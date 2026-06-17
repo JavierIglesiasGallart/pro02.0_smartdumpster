@@ -79,11 +79,23 @@ def generate_launch_description():
         executable="parameter_bridge",
         arguments=[
             "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
-            "/imu@sensor_msgs/msg/Imu[gz.msgs.IMU",
-            "/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan"
+            "/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
+
+            # --- Sensores Cámara ZED2i ---
+            "/zed2i/image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/zed2i/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo",
+            "/zed2i/depth_image@sensor_msgs/msg/Image[gz.msgs.Image",
+            "/zed2i/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked",
+            "/zed2i/imu@sensor_msgs/msg/Imu[gz.msgs.IMU",
         ],
         remappings=[
-            ('/imu', '/imu/out'),
+            
+            # --- Remapeos Cámara ZED2i ---
+            ('/zed2i/image',       '/zed/image_raw'),
+            ('/zed2i/camera_info', '/zed/camera_info'),
+            ('/zed2i/depth_image', '/zed/depth'),
+            ('/zed2i/points',      '/zed/point_cloud'),
+            ('/zed2i/imu',         '/zed/imu/out'),
         ]
     )
 
