@@ -9,3 +9,6 @@ install/
 
 # Ignorar la carpeta .vscode
 .vscode/
+
+# Ignorar la carperta .bag
+.bag/
