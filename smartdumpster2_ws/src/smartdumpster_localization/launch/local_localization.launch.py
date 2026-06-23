@@ -31,13 +31,44 @@ def generate_launch_description():
         ]
     )
 
-    robot_localization = Node(
+    robot_localization_local = Node(
         package="robot_localization",
         executable="ekf_node",
-        name="ekf_filter_node",
+        name="ekf_filter_node_local",
         output="screen",
         parameters=[
             os.path.join(get_package_share_directory("smartdumpster_localization"), "config", "ekf.yaml")
+        ],
+        remappings=[(
+            '/odometry/filtered', '/odometry/local'
+        )]
+    )
+
+    robot_localization_global = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node_global',
+        output='screen',
+        parameters=[
+            os.path.join(get_package_share_directory("smartdumpster_localization"), "config", "ekf.yaml")
+        ],
+        remappings=[(
+            '/odometry/filtered', '/odometry/global'
+        )]
+    )
+    
+    node_navsat_transform = Node(
+        package='robot_localization',
+        executable='navsat_transform_node',
+        name='navsat_transform',
+        output='screen',
+        parameters=[
+            os.path.join(get_package_share_directory("smartdumpster_localization"), "config", "ekf.yaml")
+        ],
+        remappings=[
+            ('/gps/fix', '/gps/fix'),               # Entrada: GPS remapeado del puente
+            ('/imu', '/zed/imu/out'),               # Entrada: IMU de la cámara ZED
+            ('/odometry/filtered', '/odometry/local') # Entrada: Odometría local filtrada
         ]
     )
 
@@ -56,7 +87,9 @@ def generate_launch_description():
     return LaunchDescription([
         use_python_arg,
         #static_transform_publisher,
-        robot_localization,
-        imu_republisher_py,
-        imu_republisher
+        robot_localization_local,
+        #imu_republisher_py,
+        #imu_republisher,
+        robot_localization_global,
+        node_navsat_transform
     ])

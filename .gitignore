@@ -11,4 +11,4 @@ install/
 .vscode/
 
 # Ignorar la carperta .bag
-.bag/
+bag/

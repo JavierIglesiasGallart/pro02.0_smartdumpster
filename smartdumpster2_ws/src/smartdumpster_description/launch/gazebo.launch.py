@@ -71,7 +71,8 @@ def generate_launch_description():
         executable="create",
         output="screen",
         arguments=["-topic", "robot_description",
-                    "-name", "smartdumpster"]
+                    "-name", "smartdumpster",
+                    "-z",    "0.2"]
     )
 
     gz_ros2_bridge = Node(
@@ -79,7 +80,10 @@ def generate_launch_description():
         executable="parameter_bridge",
         arguments=[
             "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock",
-            "/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan",
+            "/ground_truth/odometry@nav_msgs/msg/Odometry[gz.msgs.Odometry",
+
+            # --- GPS RTK ---
+            "/gps/data_raw@sensor_msgs/msg/NavSatFix[gz.msgs.NavSat",
 
             # --- Sensores Cámara ZED2i ---
             "/zed2i/image@sensor_msgs/msg/Image[gz.msgs.Image",
@@ -89,7 +93,11 @@ def generate_launch_description():
             "/zed2i/imu@sensor_msgs/msg/Imu[gz.msgs.IMU",
         ],
         remappings=[
-            
+            ('/ground_truth/odometry', '/odometry/ground_truth'),
+
+            # --- Remapeos GPS RTK ---
+            ('/gps/data_raw',      '/gps/fix'),
+
             # --- Remapeos Cámara ZED2i ---
             ('/zed2i/image',       '/zed/image_raw'),
             ('/zed2i/camera_info', '/zed/camera_info'),
